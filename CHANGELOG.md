@@ -9,13 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-Parse new fields from G-code file:
-- filament_names parsed from `; filament_settings_id`
-- total_filament_changes parsed from `; total filament change`
-    - Fallback to inferred value from per-slot usage when slicer omits
-      `; total filament change` (e.g. by-object multicolor with one color per object)
-- per slot filament_cost parsed from `; filament_cost`
-
 ### Fixed
 
 ### Changed
@@ -26,6 +19,17 @@ Parse new fields from G-code file:
 
 ### Security
 
+
+## [1.1.0] - 2026-03-17
+
+### Added
+
+Parse new fields from G-code file:
+- filament_names parsed from `; filament_settings_id`
+- total_filament_changes parsed from `; total filament change`
+    - Fallback to inferred value from per-slot usage when slicer omits
+      `; total filament change` (e.g. by-object multicolor with one color per object)
+- per slot filament_cost parsed from `; filament_cost`
 
 ## [1.0.0] - 2026-03-16
 

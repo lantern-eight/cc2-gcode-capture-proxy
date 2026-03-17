@@ -1,6 +1,6 @@
 [project]
 name = "cc2-gcode-capture-proxy"
-version = "1.0.0"
+version = "1.1.0"
 description = "Local network reverse proxy that captures G-code files uploaded to an Elegoo Centauri Carbon 2 printer"
 readme = "README.md"
 license = {text = "CC0-1.0"}
