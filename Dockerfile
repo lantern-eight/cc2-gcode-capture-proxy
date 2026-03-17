@@ -1,5 +1,5 @@
 # Base image: minimal Python 3.12 runtime
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 # Copy uv (fast Python package manager) from official image into /bin
 COPY --from=ghcr.io/astral-sh/uv:0.10.9 /uv /uvx /bin/
