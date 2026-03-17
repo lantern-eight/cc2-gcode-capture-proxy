@@ -35,8 +35,11 @@ class FilamentData:
   per_slot_mm: list[float] = field(default_factory=list)
   per_slot_cm3: list[float] = field(default_factory=list)
   per_slot_grams: list[float] = field(default_factory=list)
+  per_slot_cost: list[float] = field(default_factory=list)
+  filament_names: list[str] = field(default_factory=list)
   total_grams: float = 0.0
   total_cost: float = 0.0
+  total_filament_changes: int = 0
   total_layers: int = 0
   estimated_time: str = ''
 
@@ -68,6 +71,14 @@ def _parse_csv(line: str) -> list[float]:
     return [float(value.strip()) for value in match.group(1).split(',')]
   except ValueError:
     return []
+
+
+def _parse_filament_names(line: str) -> list[str]:
+  match = _RE_CSV.search(line)
+  if not match:
+    return []
+  raw = match.group(1)
+  return [name.strip().strip('"') for name in raw.split(';') if name.strip()]
 
 
 def _parse_single(line: str) -> float:
@@ -144,14 +155,20 @@ def _parse_filament_data(tail_text: str) -> FilamentData:
       filament_data.per_slot_grams = _parse_csv(line)
     elif line.startswith('; total filament used [g]'):
       filament_data.total_grams = _parse_single(line)
+    elif line.startswith('; filament cost') or line.startswith('; filament_cost'):
+      filament_data.per_slot_cost = _parse_csv(line)
     elif line.startswith('; total filament cost'):
       filament_data.total_cost = _parse_single(line)
+    elif line.startswith('; total filament change'):
+      filament_data.total_filament_changes = int(_parse_single(line))
     elif line.startswith('; total layers count'):
       filament_data.total_layers = int(_parse_single(line))
     elif line.startswith('; estimated printing time'):
       match = re.search(r'=\s*(.+)', line)
       if match:
         filament_data.estimated_time = match.group(1).strip()
+    elif line.startswith('; filament_settings_id'):
+      filament_data.filament_names = _parse_filament_names(line)
 
   return filament_data
 

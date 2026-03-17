@@ -195,6 +195,54 @@ class TestParseFilamentData:
     filament_data = parse_filament_data(raw)
     assert filament_data.total_grams == 0.0
 
+  def test_per_slot_cost(self):
+    data = make_gcode(per_slot_cost='0.41, 0.24, 0.00, 0.00')
+    filament_data = parse_filament_data(data)
+    assert filament_data.per_slot_cost == [0.41, 0.24, 0.0, 0.0]
+
+  def test_per_slot_cost_filament_cost_format(self):
+    '''ElegooSlicer writes ; filament_cost = ... in CONFIG_BLOCK (underscore).'''
+    data = make_gcode(per_slot_cost='12.6,17.99,0,0')
+    raw = data.replace(b'; filament cost = ', b'; filament_cost = ')
+    filament_data = parse_filament_data(raw)
+    assert filament_data.per_slot_cost == [12.6, 17.99, 0.0, 0.0]
+
+  def test_total_filament_changes(self):
+    data = make_gcode(total_filament_changes=46)
+    filament_data = parse_filament_data(data)
+    assert filament_data.total_filament_changes == 46
+
+  def test_filament_settings_id_simple(self):
+    data = make_gcode(
+      filament_settings_id='ElegooPLA-Basic-White;ElegooPLA-Basic-Black;ElegooPLA-Basic-Black;ElegooPLA-Metallic-Blue',
+    )
+    filament_data = parse_filament_data(data)
+    assert filament_data.filament_names == [
+      'ElegooPLA-Basic-White',
+      'ElegooPLA-Basic-Black',
+      'ElegooPLA-Basic-Black',
+      'ElegooPLA-Metallic-Blue',
+    ]
+
+  def test_filament_settings_id_with_quoted_names(self):
+    data = make_gcode(
+      filament_settings_id='ElegooPLA-Basic-White;"ElegooPLA-Matte-Ruby Red";ElegooPLA-Basic-Black;ElegooPLA-Metallic-Blue',
+    )
+    filament_data = parse_filament_data(data)
+    assert filament_data.filament_names == [
+      'ElegooPLA-Basic-White',
+      'ElegooPLA-Matte-Ruby Red',
+      'ElegooPLA-Basic-Black',
+      'ElegooPLA-Metallic-Blue',
+    ]
+
+  def test_no_new_fields_returns_defaults(self):
+    data = make_gcode()
+    filament_data = parse_filament_data(data)
+    assert filament_data.per_slot_cost == []
+    assert filament_data.filament_names == []
+    assert filament_data.total_filament_changes == 0
+
 
 # ===================================================================
 # parse_gcode (full metadata)
