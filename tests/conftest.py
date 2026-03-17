@@ -39,8 +39,11 @@ def make_gcode(
   per_slot_mm: str | None = None,
   per_slot_cm3: str | None = None,
   per_slot_grams: str | None = None,
+  per_slot_cost: str | None = None,
+  filament_settings_id: str | None = None,
   total_grams: float | None = None,
   total_cost: float | None = None,
+  total_filament_changes: int | None = None,
   total_layers: int | None = None,
   estimated_time: str | None = None,
 ) -> bytes:
@@ -64,10 +67,14 @@ def make_gcode(
     tail_lines.append(f'; filament used [cm3] = {per_slot_cm3}')
   if per_slot_grams is not None:
     tail_lines.append(f'; filament used [g] = {per_slot_grams}')
+  if per_slot_cost is not None:
+    tail_lines.append(f'; filament cost = {per_slot_cost}')
   if total_grams is not None:
     tail_lines.append(f'; total filament used [g] = {total_grams}')
   if total_cost is not None:
     tail_lines.append(f'; total filament cost = {total_cost}')
+  if total_filament_changes is not None:
+    tail_lines.append(f'; total filament change = {total_filament_changes}')
   if total_layers is not None:
     tail_lines.append(f'; total layers count = {total_layers}')
   if estimated_time is not None:
@@ -80,6 +87,8 @@ def make_gcode(
     config_lines.append(f'; filename_format = {filename_format}')
   if output_filename_format is not None:
     config_lines.append(f'; output_filename_format = {output_filename_format}')
+  if filament_settings_id is not None:
+    config_lines.append(f'; filament_settings_id = {filament_settings_id}')
   config_lines.append('; CONFIG_BLOCK_END')
 
   all_lines = header_lines + body_lines + tail_lines + config_lines

@@ -195,6 +195,91 @@ class TestParseFilamentData:
     filament_data = parse_filament_data(raw)
     assert filament_data.total_grams == 0.0
 
+  def test_per_slot_cost(self):
+    data = make_gcode(per_slot_cost='0.41, 0.24, 0.00, 0.00')
+    filament_data = parse_filament_data(data)
+    assert filament_data.per_slot_cost == [0.41, 0.24, 0.0, 0.0]
+
+  def test_per_slot_cost_filament_cost_format(self):
+    '''ElegooSlicer writes ; filament_cost = ... in CONFIG_BLOCK (underscore).'''
+    data = make_gcode(per_slot_cost='12.6,17.99,0,0')
+    raw = data.replace(b'; filament cost = ', b'; filament_cost = ')
+    filament_data = parse_filament_data(raw)
+    assert filament_data.per_slot_cost == [12.6, 17.99, 0.0, 0.0]
+
+  def test_total_filament_changes(self):
+    data = make_gcode(total_filament_changes=46)
+    filament_data = parse_filament_data(data)
+    assert filament_data.total_filament_changes == 46
+
+  def test_total_filament_changes_inferred_from_per_slot_usage(self):
+    '''When slicer omits ; total filament change, infer from nonzero slots.'''
+    # Two slots used -> at least 1 change (e.g. by-object multicolor)
+    data = make_gcode(per_slot_grams='1.0, 2.0, 0.0, 0.0')
+    filament_data = parse_filament_data(data)
+    assert filament_data.total_filament_changes == 1
+
+  def test_total_filament_changes_inferred_three_slots(self):
+    data = make_gcode(per_slot_grams='1.0, 2.0, 0.5, 0.0')
+    filament_data = parse_filament_data(data)
+    assert filament_data.total_filament_changes == 2
+
+  def test_total_filament_changes_inferred_single_slot_stays_zero(self):
+    data = make_gcode(per_slot_grams='0.0, 0.0, 5.0, 0.0')
+    filament_data = parse_filament_data(data)
+    assert filament_data.total_filament_changes == 0
+
+  def test_total_filament_changes_explicit_overrides_inference(self):
+    '''When slicer outputs the value, use it (do not overwrite with inference).'''
+    data = make_gcode(
+      per_slot_grams='1.0, 2.0, 0.0, 0.0',
+      total_filament_changes=46,
+    )
+    filament_data = parse_filament_data(data)
+    assert filament_data.total_filament_changes == 46
+
+  def test_total_filament_changes_explicit_zero_overridden_when_multiple_slots_used(
+    self,
+  ):
+    '''When slicer sends 0 but multiple filaments are used, override with inferred value.'''
+    data = make_gcode(
+      per_slot_grams='1.0, 2.0, 0.0, 0.0',
+      total_filament_changes=0,
+    )
+    filament_data = parse_filament_data(data)
+    assert filament_data.total_filament_changes == 1
+
+  def test_filament_settings_id_simple(self):
+    data = make_gcode(
+      filament_settings_id='ElegooPLA-Basic-White;ElegooPLA-Basic-Black;ElegooPLA-Basic-Black;ElegooPLA-Metallic-Blue',
+    )
+    filament_data = parse_filament_data(data)
+    assert filament_data.filament_names == [
+      'ElegooPLA-Basic-White',
+      'ElegooPLA-Basic-Black',
+      'ElegooPLA-Basic-Black',
+      'ElegooPLA-Metallic-Blue',
+    ]
+
+  def test_filament_settings_id_with_quoted_names(self):
+    data = make_gcode(
+      filament_settings_id='ElegooPLA-Basic-White;"ElegooPLA-Matte-Ruby Red";ElegooPLA-Basic-Black;ElegooPLA-Metallic-Blue',
+    )
+    filament_data = parse_filament_data(data)
+    assert filament_data.filament_names == [
+      'ElegooPLA-Basic-White',
+      'ElegooPLA-Matte-Ruby Red',
+      'ElegooPLA-Basic-Black',
+      'ElegooPLA-Metallic-Blue',
+    ]
+
+  def test_no_new_fields_returns_defaults(self):
+    data = make_gcode()
+    filament_data = parse_filament_data(data)
+    assert filament_data.per_slot_cost == []
+    assert filament_data.filament_names == []
+    assert filament_data.total_filament_changes == 0
+
 
 # ===================================================================
 # parse_gcode (full metadata)
