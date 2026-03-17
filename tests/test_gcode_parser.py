@@ -238,6 +238,17 @@ class TestParseFilamentData:
     filament_data = parse_filament_data(data)
     assert filament_data.total_filament_changes == 46
 
+  def test_total_filament_changes_explicit_zero_overridden_when_multiple_slots_used(
+    self,
+  ):
+    '''When slicer sends 0 but multiple filaments are used, override with inferred value.'''
+    data = make_gcode(
+      per_slot_grams='1.0, 2.0, 0.0, 0.0',
+      total_filament_changes=0,
+    )
+    filament_data = parse_filament_data(data)
+    assert filament_data.total_filament_changes == 1
+
   def test_filament_settings_id_simple(self):
     data = make_gcode(
       filament_settings_id='ElegooPLA-Basic-White;ElegooPLA-Basic-Black;ElegooPLA-Basic-Black;ElegooPLA-Metallic-Blue',
