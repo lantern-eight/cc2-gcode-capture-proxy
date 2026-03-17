@@ -1,0 +1,14 @@
+.git
+.gitignore
+.gitattributes
+.env
+*.md
+LICENSE
+gcode-archive/
+__pycache__
+*.pyc
+.venv
+.mypy_cache
+.ruff_cache
+.pytest_cache
+.python-version

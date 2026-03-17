@@ -1,0 +1,9 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.6
+    hooks:
+      - id: ruff
+        # No --fix: report lint errors and block commit without changing files
+      - id: ruff-format
+        args: [--check]
+        # --check: report formatting issues and block commit without changing files
