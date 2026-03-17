@@ -170,6 +170,13 @@ def _parse_filament_data(tail_text: str) -> FilamentData:
     elif line.startswith('; filament_settings_id'):
       filament_data.filament_names = _parse_filament_names(line)
 
+  # Fallback: infer minimum filament changes from per-slot usage when slicer
+  # omits '; total filament change' (e.g. by-object multicolor with one color
+  # per object).
+  if filament_data.total_filament_changes == 0 and filament_data.per_slot_grams:
+    nonzero_slots = sum(1 for g in filament_data.per_slot_grams if g > 0)
+    filament_data.total_filament_changes = max(0, nonzero_slots - 1)
+
   return filament_data
 
 
