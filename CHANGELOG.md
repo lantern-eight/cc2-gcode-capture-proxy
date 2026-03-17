@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+
+Parse new fields from G-code file:
+- filament_names parsed from `; filament_settings_id`
+- total_filament_changes parsed from `; total filament change`
+- per slot filament_cost parsed from `; filament_cost`
+
 ### Fixed
 
 ### Changed
