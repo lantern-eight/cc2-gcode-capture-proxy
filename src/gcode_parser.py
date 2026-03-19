@@ -36,6 +36,8 @@ class FilamentData:
   per_slot_cm3: list[float] = field(default_factory=list)
   per_slot_grams: list[float] = field(default_factory=list)
   per_slot_cost: list[float] = field(default_factory=list)
+  per_slot_density: list[float] = field(default_factory=list)
+  per_slot_diameter: list[float] = field(default_factory=list)
   filament_names: list[str] = field(default_factory=list)
   total_grams: float = 0.0
   total_cost: float = 0.0
@@ -79,6 +81,16 @@ def _parse_filament_names(line: str) -> list[str]:
     return []
   raw = match.group(1)
   return [name.strip().strip('"') for name in raw.split(';') if name.strip()]
+
+
+def _parse_semicolon_floats(line: str) -> list[float]:
+  match = _RE_CSV.search(line)
+  if not match:
+    return []
+  try:
+    return [float(value.strip()) for value in match.group(1).split(';') if value.strip()]
+  except ValueError:
+    return []
 
 
 def _parse_single(line: str) -> float:
@@ -169,6 +181,10 @@ def _parse_filament_data(tail_text: str) -> FilamentData:
         filament_data.estimated_time = match.group(1).strip()
     elif line.startswith('; filament_settings_id'):
       filament_data.filament_names = _parse_filament_names(line)
+    elif line.startswith('; filament_density'):
+      filament_data.per_slot_density = _parse_semicolon_floats(line)
+    elif line.startswith('; filament_diameter'):
+      filament_data.per_slot_diameter = _parse_semicolon_floats(line)
 
   # Fallback: infer minimum filament changes from per-slot usage when slicer
   # omits '; total filament change' (e.g. by-object multicolor with one color

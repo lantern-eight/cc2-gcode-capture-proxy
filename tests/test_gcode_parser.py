@@ -273,6 +273,28 @@ class TestParseFilamentData:
       'ElegooPLA-Metallic-Blue',
     ]
 
+  def test_filament_density_semicolon_separated(self):
+    data = make_gcode(filament_density='1.26;1.26;1.26;1.25')
+    filament_data = parse_filament_data(data)
+    assert filament_data.per_slot_density == [1.26, 1.26, 1.26, 1.25]
+
+  def test_filament_diameter_semicolon_separated(self):
+    data = make_gcode(filament_diameter='1.75;1.75;1.75;1.75')
+    filament_data = parse_filament_data(data)
+    assert filament_data.per_slot_diameter == [1.75, 1.75, 1.75, 1.75]
+
+  def test_density_and_diameter_single_extruder(self):
+    data = make_gcode(filament_density='1.24', filament_diameter='1.75')
+    filament_data = parse_filament_data(data)
+    assert filament_data.per_slot_density == [1.24]
+    assert filament_data.per_slot_diameter == [1.75]
+
+  def test_no_density_or_diameter_returns_defaults(self):
+    data = make_gcode()
+    filament_data = parse_filament_data(data)
+    assert filament_data.per_slot_density == []
+    assert filament_data.per_slot_diameter == []
+
   def test_no_new_fields_returns_defaults(self):
     data = make_gcode()
     filament_data = parse_filament_data(data)

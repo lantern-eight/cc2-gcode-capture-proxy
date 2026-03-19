@@ -41,6 +41,8 @@ def make_gcode(
   per_slot_grams: str | None = None,
   per_slot_cost: str | None = None,
   filament_settings_id: str | None = None,
+  filament_density: str | None = None,
+  filament_diameter: str | None = None,
   total_grams: float | None = None,
   total_cost: float | None = None,
   total_filament_changes: int | None = None,
@@ -89,6 +91,10 @@ def make_gcode(
     config_lines.append(f'; output_filename_format = {output_filename_format}')
   if filament_settings_id is not None:
     config_lines.append(f'; filament_settings_id = {filament_settings_id}')
+  if filament_density is not None:
+    config_lines.append(f'; filament_density = {filament_density}')
+  if filament_diameter is not None:
+    config_lines.append(f'; filament_diameter = {filament_diameter}')
   config_lines.append('; CONFIG_BLOCK_END')
 
   all_lines = header_lines + body_lines + tail_lines + config_lines
