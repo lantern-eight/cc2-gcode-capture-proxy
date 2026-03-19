@@ -88,7 +88,9 @@ def _parse_semicolon_floats(line: str) -> list[float]:
   if not match:
     return []
   try:
-    return [float(value.strip()) for value in match.group(1).split(';') if value.strip()]
+    return [
+      float(value.strip()) for value in match.group(1).split(';') if value.strip()
+    ]
   except ValueError:
     return []
 
